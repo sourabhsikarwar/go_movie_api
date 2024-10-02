@@ -44,7 +44,7 @@ func UpdateMovie(movieId string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Movie updated", res.ModifiedCount)
+	fmt.Println("Movie updated", id, res.ModifiedCount)
 }
 
 func DeleteMovie(movieId string) {
@@ -58,11 +58,11 @@ func DeleteMovie(movieId string) {
 	}
 
 	filter := bson.M{"_id": id}
-	res, err := db.Collection.DeleteOne(context.Background(), filter)
+	deletedCount, err := db.Collection.DeleteOne(context.Background(), filter)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Movie deleted", res.DeletedCount)
+	fmt.Println("Movie deleted", id, deletedCount)
 }
 
 func DeleteMovies(movieIds []string) {
@@ -89,7 +89,7 @@ func DeleteMovies(movieIds []string) {
 }
 
 func DeleteAllMovies() {
-	res, err := db.Collection.DeleteMany(context.Background(), bson.D{{}}, nil)
+	res, err := db.Collection.DeleteMany(context.Background(), bson.M{})
 	if err != nil {
 		log.Fatal(err)
 	}
