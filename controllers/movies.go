@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// ------------- Modifications Endpoints --------------------
 func insertMovie(movie models.Movies) {
 	if movie.Movie == "" {
 		fmt.Println("No movie title provided")
@@ -82,4 +83,41 @@ func deleteMovies(movieIds []string) {
 		log.Fatal(err)
 	}
 	fmt.Println("Movies deleted", res.DeletedCount)
+}
+
+func deleteAllMovies() {
+	res, err := db.Collection.DeleteMany(context.Background(), bson.D{{}}, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("All Movies deleted", res.DeletedCount)
+}
+
+// ----------------------------------
+
+// ----------------- Reading Endpoints ---------------
+
+func getAllMovies() []primitive.M {
+	// Here mongo db returns a cursor object from which we can loop and get individual object or data
+	cursor, err := db.Collection.Find(context.Background(), bson.M{})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	var movies []primitive.M
+
+	// Looping until the curson.Next has a valid value
+	// This works like a while loop
+	for cursor.Next(context.Background()) {
+		var movie bson.M
+
+		// passing reference of movie variable to store the error value for checking
+		if err := cursor.Decode(&movie); err != nil {
+			log.Fatal(err)
+		}
+		movies = append(movies, movie)
+	}
+	// closing the context for the cursor
+	defer cursor.Close(context.Background())
+	return movies
 }
